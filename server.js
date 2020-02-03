@@ -3,30 +3,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const nodemailer = require("nodemailer");
-
-async function sendMail({ to, subject, text }) {
-  try {
-    const emailTransporter = nodemailer.createTransport({
-      host: "smtp.mail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
-    await emailTransporter.sendMail({
-      from: "gabriellapelton@mail.com",
-      to,
-      subject,
-      text
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
+const {emailTransporter} = require("./utils/communications");
 
 const messageRouter = require("./data/routes/messages");
 
@@ -53,7 +30,7 @@ server.use("/messages", messageRouter);
 
 server.get("/", async (req, res) => {
   res.status(200).json("Hello squirrel");
-  await sendMail({
+  await emailTransporter.sendMail({
     to: process.env.EMAIL_RECIPIENT,
     subject: "Direct API accesss",
     text: "Someone is hitting up your API directly"
@@ -64,4 +41,3 @@ server.listen(process.env.PORT, () => {
   console.log(`LISTENING ON PORT ${process.env.PORT}`);
 });
 
-module.exports = { sendMail };
