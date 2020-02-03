@@ -2,6 +2,7 @@ const express = require("express");
 const nodemailer = require("nodemailer");
 const uuidV4 = require("uuid/v4");
 const Message = require("../models/message");
+const User = require("../models/user");
 
 const router = express.Router();
 
@@ -19,21 +20,23 @@ router
   .post("/", async (req, res) => {
     try {
       const { message, token } = req.body;
+      const newMessage = new Message({ content: message, token });
+      const savedMessage = await newMessage.save();
+      res.status(200).json({ savedMessage });
       await transporter.sendMail({
         to: process.env.EMAIL_RECIPIENT,
         subject: "New message from gabriellapelton.com",
         text: `user: ${token}\n\nmessage: ${message}`
       });
-      const newMessage = new Message({ content: message, token });
-      const savedMessage = await newMessage.save();
-      res.status(200).json({ savedMessage });
     } catch (error) {
       res.status(500).json({ error });
     }
   })
   .get("/token", async (req, res) => {
     const token = uuidV4();
+    const newUser = new User({token});
     res.status(200).json({ token });
+    await newUser.save();
     await transporter.sendMail({
       to: process.env.EMAIL_RECIPIENT,
       subject: "New user token created",
