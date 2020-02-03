@@ -17,6 +17,7 @@
     "uuid": "^3.4.0"
   },
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node server.js",
+    "develop": "nodemon -r dotenv/config server.js"
   }
 }

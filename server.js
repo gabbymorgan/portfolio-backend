@@ -4,7 +4,6 @@ const morgan = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
-require("dotenv").config();
 
 const emailTransporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
