@@ -1,20 +1,10 @@
 const express = require("express");
-const nodemailer = require("nodemailer");
 const uuidV4 = require("uuid/v4");
 const Message = require("../models/message");
 const User = require("../models/user");
+const { emailTransporter } = require("../../server");
 
 const router = express.Router();
-
-let transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  }
-});
 
 router
   .post("/", async (req, res) => {
@@ -23,7 +13,7 @@ router
       const newMessage = new Message({ content: message, token });
       const savedMessage = await newMessage.save();
       res.status(200).json({ savedMessage });
-      await transporter.sendMail({
+      await emailTransporter.sendMail({
         to: process.env.EMAIL_RECIPIENT,
         subject: "New message from gabriellapelton.com",
         text: `user: ${token}\n\nmessage: ${message}`
@@ -34,10 +24,10 @@ router
   })
   .get("/token", async (req, res) => {
     const token = uuidV4();
-    const newUser = new User({token});
+    const newUser = new User({ token });
     res.status(200).json({ token });
     await newUser.save();
-    await transporter.sendMail({
+    await emailTransporter.sendMail({
       to: process.env.EMAIL_RECIPIENT,
       subject: "New user token created",
       text: "A new user has visited the site"
@@ -48,7 +38,7 @@ router
       const { token } = req.query;
       const messages = await Message.find({ token });
       res.status(200).json({ messages });
-      await transporter.sendMail({
+      await emailTransporter.sendMail({
         to: process.env.EMAIL_RECIPIENT,
         subject: "A visitor returns",
         text: `User ${token} has returned`
