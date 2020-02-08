@@ -1,8 +1,12 @@
 const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema({
-  token: String,
-  createdOn: { type: Date, default: Date.now }
+const userSchema = new mongoose.Schema({
+  token: { type: String, required: true },
+  guessWho: { type: String, default: "no clue" },
+  createdOn: { type: Date, default: Date.now },
+  visits: [{ type: Date }],
+  lastVisited: { type: Date, default: Date.now },
+  messages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }]
 });
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("User", userSchema);
