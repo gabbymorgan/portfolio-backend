@@ -23,24 +23,30 @@ router
       });
       await foundUser.save();
     } catch (err) {
-      console.log(err);
+      console.log({ err, message });
+      res.status(500).json({ err, message });
     }
   })
   .get("/token", async (req, res) => {
-    const token = uuidV4();
-    const visitedOn = Date.now();
-    const newUser = new User({
-      token,
-      visits: [visitedOn],
-      lastVisited: visitedOn,
-    });
-    res.status(200).json({ token });
-    await newUser.save();
-    await emailTransporter.sendMail({
-      to: process.env.EMAIL_RECIPIENT,
-      subject: "New user token created",
-      text: "A new user has visited the site",
-    });
+    try {
+      const token = uuidV4();
+      const visitedOn = Date.now();
+      const newUser = new User({
+        token,
+        visits: [visitedOn],
+        lastVisited: visitedOn,
+      });
+      res.status(200).json({ token });
+      await newUser.save();
+      await emailTransporter.sendMail({
+        to: process.env.EMAIL_RECIPIENT,
+        subject: "New user token created",
+        text: "A new user has visited the site",
+      });
+    } catch (error) {
+      console.log({ error });
+      res.status(500).json({ error });
+    }
   })
   .get("/mine", async (req, res) => {
     try {
@@ -50,7 +56,7 @@ router
         return res.status(404).json({ message: "No user found." });
       }
       let { messages, lastVisited, visits, guessWho } = foundUser;
-      res.statufews(200).json({ messages });
+      res.status(200).json({ messages });
       if (moment().startOf("day").isAfter(lastVisited)) {
         await emailTransporter.sendMail({
           to: process.env.EMAIL_RECIPIENT,
@@ -61,8 +67,9 @@ router
       lastVisited = Date.now();
       visits.push(lastVisited);
       await foundUser.update({ lastVisited, visits });
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log({ error });
+      res.status(500).json({ error });
     }
   });
 
