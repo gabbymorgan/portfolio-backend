@@ -3,19 +3,19 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const {emailTransporter} = require("./utils/communications");
+const { emailTransporter } = require("./utils/communications");
 
 const messageRouter = require("./data/routes/messages");
 
 mongoose
   .connect(
-    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0-h73bz.mongodb.net/portfolio?retryWrites=true&w=majority`,
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.sixxb.mongodb.net/portfolio?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {
     console.log("~~~ connected to db ~~~");
   })
-  .catch(err => {
+  .catch((err) => {
     console.log(err);
   });
 
@@ -33,11 +33,10 @@ server.get("/", async (req, res) => {
   await emailTransporter.sendMail({
     to: process.env.EMAIL_RECIPIENT,
     subject: "Direct API accesss",
-    text: "Someone is hitting up your API directly"
+    text: "Someone is hitting up your API directly",
   });
 });
 
 server.listen(process.env.PORT, () => {
   console.log(`LISTENING ON PORT ${process.env.PORT}`);
 });
-
